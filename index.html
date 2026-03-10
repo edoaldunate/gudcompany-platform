@@ -596,6 +596,124 @@
   /* Transitions */
   .main-fade { animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── HAMBURGER BUTTON ── */
+  .hamburger {
+    display: none;
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid var(--gray-100);
+    background: none; cursor: pointer;
+    flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    flex-shrink: 0;
+  }
+  .hamburger span {
+    display: block; width: 16px; height: 2px;
+    background: var(--dark); border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── SIDEBAR OVERLAY (mobile) ── */
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 49;
+  }
+  .sidebar-overlay.visible { display: block; }
+
+  /* ── TABLET (≤ 1024px) ── */
+  @media (max-width: 1024px) {
+    :root { --sidebar-w: 220px; }
+
+    .dim-hero-inner { grid-template-columns: 1fr; gap: 24px; }
+    .dim-stats { grid-template-columns: repeat(4, 1fr); }
+
+    .dim-feed-section { grid-template-columns: 1fr; padding: 0 24px 40px; }
+    .dim-hero { padding: 24px 24px 20px; }
+    .dim-hero-inner { padding: 32px; }
+
+    .product-hero { grid-template-columns: 1fr; padding: 28px 24px 20px; }
+    .product-hero-img { max-width: 480px; }
+    .product-sections { padding: 0 24px 40px; }
+    .filter-bar { padding: 10px 24px; }
+
+    .knowledge-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── MOBILE (≤ 768px) ── */
+  @media (max-width: 768px) {
+    body { overflow: auto; }
+
+    /* Auth & Company */
+    .auth-card { width: calc(100vw - 40px); padding: 28px 20px; }
+    .company-grid { width: calc(100vw - 40px); grid-template-columns: 1fr; }
+
+    /* Topbar */
+    .topbar { padding: 0 12px; gap: 8px; }
+    .topbar-logo {
+      width: auto; border-right: none;
+      padding: 0; gap: 8px;
+    }
+    .topbar-company { padding: 0; }
+    .company-badge span:last-child { display: none; }
+    .topbar-icon-btn { display: none; }
+    .hamburger { display: flex; }
+
+    /* Sidebar: slide in from left on mobile */
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 200;
+      width: 260px;
+    }
+    .sidebar.mobile-open { transform: translateX(0); }
+
+    /* Main: full width */
+    .main { margin-left: 0; }
+
+    /* Hero */
+    .dim-hero { padding: 16px 16px 12px; }
+    .dim-hero-inner { padding: 24px 20px; grid-template-columns: 1fr; gap: 20px; }
+    .dim-hero h1 { font-size: 32px; }
+    .dim-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .dim-stat { padding: 12px; }
+    .dim-stat .num { font-size: 22px; }
+
+    /* Feed */
+    .dim-feed-section { grid-template-columns: 1fr; padding: 0 16px 32px; gap: 20px; }
+
+    /* Product */
+    .filter-bar { padding: 10px 16px; flex-wrap: wrap; gap: 6px; }
+    .product-hero { padding: 20px 16px 16px; gap: 20px; }
+    .product-sections { padding: 0 16px 32px; }
+
+    /* Grids */
+    .knowledge-grid { grid-template-columns: 1fr; }
+    .muro-grid { grid-template-columns: 1fr; }
+
+    /* Tabs: scrollable */
+    .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { white-space: nowrap; padding: 10px 14px; font-size: 12px; }
+
+    /* Gantt: scrollable container */
+    .gantt-row { grid-template-columns: 120px 1fr; }
+
+    /* Deliverables: hide owner avatar on very small */
+    .di-date { display: none; }
+  }
+
+  /* ── SMALL MOBILE (≤ 480px) ── */
+  @media (max-width: 480px) {
+    .dim-hero h1 { font-size: 26px; }
+    .company-badge { font-size: 12px; padding: 5px 8px; }
+    .post-actions { gap: 10px; }
+    .filter-btn { font-size: 11px; padding: 5px 10px; }
+    .topbar-logo span { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -660,6 +778,7 @@
 
   <!-- TOP BAR -->
   <div class="topbar">
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
     <div class="topbar-logo">
       <div style="width:28px;height:28px;background:#1A1A18;border-radius:6px;display:flex;align-items:center;justify-content:center;">
         <span style="font-size:14px;font-weight:900;color:#fff;font-family:'Playfair Display',serif;font-style:italic;">g</span>
@@ -684,6 +803,9 @@
       <div class="avatar" id="user-avatar">RG</div>
     </div>
   </div>
+
+  <!-- SIDEBAR OVERLAY -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -1277,6 +1399,24 @@
 let currentCompany = { name: 'TechStartup SA', color: '#E8611A', initials: 'TS' };
 let currentPage = 'dim-estrategia';
 
+// ── SIDEBAR MOBILE TOGGLE ──
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const btn = document.getElementById('hamburger-btn');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('visible');
+  btn.classList.toggle('open');
+}
+function closeSidebarMobile() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const btn = document.getElementById('hamburger-btn');
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('visible');
+  btn.classList.remove('open');
+}
+
 // ── AUTH ──
 function showCompanySelect() {
   document.getElementById('auth-screen').style.display = 'none';
@@ -1314,6 +1454,8 @@ function navigate(pageId, label) {
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   event.currentTarget.classList.add('active');
   currentPage = pageId;
+  // Close sidebar on mobile
+  closeSidebarMobile();
 }
 
 // ── SIDEBAR TOGGLE ──
