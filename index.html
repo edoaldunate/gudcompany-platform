@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gudcompany Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E8611A;
+    --yellow: #E8D21A;
+    --green: #4A9E7F;
+    --dark: #1A1A18;
+    --white: #FFFFFF;
+    --gray-50: #F8F8F6;
+    --gray-100: #EFEFED;
+    --gray-300: #C8C8C4;
+    --gray-500: #888884;
+    --gray-700: #444440;
+    --sidebar-w: 260px;
+    --topbar-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--white);
+    color: var(--dark);
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen {
+    position: fixed; inset: 0;
+    background: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .auth-logo {
+    width: 80px; height: 80px;
+    background: var(--dark);
+    border: 2px solid #333;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; color: var(--white);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+  .auth-card {
+    background: #222220;
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 40px;
+    width: 380px;
+    text-align: center;
+  }
+  .auth-card h1 { color: var(--white); font-size: 22px; margin-bottom: 6px; }
+  .auth-card p { color: var(--gray-500); font-size: 14px; margin-bottom: 28px; }
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    background: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    width: 100%;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .google-btn:hover { background: var(--gray-100); transform: translateY(-1px); }
+  .google-btn svg { width: 20px; height: 20px; }
+
+  /* ── COMPANY SELECT ── */
+  #company-screen {
+    position: fixed; inset: 0;
+    background: var(--dark);
+    display: none; align-items: center; justify-content: center;
+    z-index: 999;
+    flex-direction: column;
+    gap: 24px;
+  }
+  #company-screen h2 { color: var(--white); font-size: 18px; font-weight: 500; }
+  .company-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; width: 500px;
+  }
+  .company-card {
+    background: #222220; border: 1px solid #333;
+    border-radius: 12px; padding: 24px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .company-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+  .company-card .dot {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: var(--white);
+    margin-bottom: 4px;
+  }
+  .company-card h3 { color: var(--white); font-size: 15px; }
+  .company-card p { color: var(--gray-500); font-size: 12px; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: center;
+    padding: 0 20px 0 0;
+    z-index: 100;
+    gap: 0;
+  }
+  .topbar-logo {
+    width: var(--sidebar-w);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 20px;
+    border-right: 1px solid var(--gray-100);
+    height: 100%;
+    flex-shrink: 0;
+  }
+  .topbar-logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .topbar-logo span { font-size: 14px; font-weight: 700; color: var(--dark); }
+  .topbar-company {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 20px;
+    flex: 1;
+  }
+  .company-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px; font-weight: 600;
+  }
+  .company-badge .cbdot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .topbar-right {
+    display: flex; align-items: center; gap: 12px;
+    margin-left: auto;
+  }
+  .topbar-icon-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--gray-100);
+    background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray-500);
+    transition: all 0.15s;
+  }
+  .topbar-icon-btn:hover { background: var(--gray-50); color: var(--dark); }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--white);
+    cursor: pointer;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; left: 0; top: var(--topbar-h); bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--gray-50);
+    border-right: 1px solid var(--gray-100);
+    overflow-y: auto;
+    padding: 16px 0;
+    z-index: 50;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+
+  .sidebar-section { margin-bottom: 4px; }
+  .sidebar-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 16px;
+    cursor: pointer;
+    border-radius: 0;
+  }
+  .sidebar-section-header:hover { background: var(--gray-100); }
+  .ssh-left { display: flex; align-items: center; gap: 8px; }
+  .ssh-icon {
+    width: 20px; height: 20px; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--white);
+    flex-shrink: 0;
+  }
+  .ssh-label { font-size: 13px; font-weight: 600; color: var(--dark); }
+  .ssh-chevron { color: var(--gray-500); font-size: 10px; transition: transform 0.2s; }
+  .ssh-chevron.open { transform: rotate(90deg); }
+
+  .sidebar-items { display: none; padding: 2px 0; }
+  .sidebar-items.open { display: block; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 16px 6px 44px;
+    cursor: pointer;
+    font-size: 12.5px; color: var(--gray-700);
+    border-radius: 0;
+    transition: all 0.15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sidebar-item:hover { background: var(--gray-100); color: var(--dark); }
+  .sidebar-item.active { background: var(--white); color: var(--dark); font-weight: 600; border-right: 2px solid var(--orange); }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--topbar-h);
+    height: calc(100vh - var(--topbar-h));
+    overflow-y: auto;
+    background: var(--white);
+  }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── DIMENSION LANDING ── */
+  .dim-hero {
+    padding: 48px 48px 32px;
+    position: relative;
+  }
+  .dim-hero-inner {
+    border-radius: 20px;
+    padding: 48px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; align-items: center;
+    min-height: 240px;
+    position: relative; overflow: hidden;
+  }
+  .dim-hero-inner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 20px);
+  }
+  .dim-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px; font-weight: 700;
+    color: var(--dark); line-height: 1.1;
+    position: relative;
+  }
+  .dim-hero h1 em { font-style: italic; }
+  .dim-hero .subtitle {
+    font-size: 15px; font-weight: 500;
+    color: var(--dark); opacity: 0.75;
+    margin-top: 12px; line-height: 1.5;
+    position: relative;
+  }
+  .dim-hero .desc {
+    font-size: 13.5px; color: var(--dark); opacity: 0.6;
+    margin-top: 12px; line-height: 1.6;
+    position: relative;
+  }
+  .dim-hero-right { position: relative; }
+  .dim-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .dim-stat {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .dim-stat .num { font-size: 28px; font-weight: 700; color: var(--dark); }
+  .dim-stat .lbl { font-size: 11px; color: var(--dark); opacity: 0.6; margin-top: 2px; }
+
+  /* FEED */
+  .dim-feed-section {
+    padding: 0 48px 48px;
+    display: grid; grid-template-columns: 1fr 340px;
+    gap: 32px;
+  }
+  .feed-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .feed-header h2 { font-size: 16px; font-weight: 700; }
+  .btn-sm {
+    background: var(--dark);
+    color: var(--white);
+    border: none; border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-sm:hover { opacity: 0.85; }
+  .btn-sm.outline {
+    background: none; color: var(--dark);
+    border: 1px solid var(--gray-300);
+  }
+
+  .post-composer {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-100);
+    border-radius: 12px; padding: 16px;
+    margin-bottom: 16px;
+  }
+  .post-composer textarea {
+    width: 100%; background: none; border: none; outline: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px; color: var(--dark);
+    resize: none; height: 60px;
+  }
+  .post-composer textarea::placeholder { color: var(--gray-500); }
+  .post-composer-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--gray-100);
+  }
+  .pc-icons { display: flex; gap: 8px; }
+  .pc-icon {
+    width: 30px; height: 30px; border-radius: 6px;
+    border: none; background: var(--gray-100);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--gray-500); font-size: 13px;
+    transition: all 0.15s;
+  }
+  .pc-icon:hover { background: var(--gray-300); color: var(--dark); }
+
+  .post-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 12px; padding: 20px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s;
+  }
+  .post-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .post-header { display: flex; gap: 12px; margin-bottom: 12px; }
+  .post-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--white);
+  }
+  .post-meta .name { font-size: 13.5px; font-weight: 600; }
+  .post-meta .time { font-size: 11.5px; color: var(--gray-500); }
+  .post-tag {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 4px; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .post-content { font-size: 13.5px; line-height: 1.6; color: var(--dark); }
+  .post-img {
+    width: 100%; height: 140px; border-radius: 8px;
+    object-fit: cover; margin-top: 12px;
+    background: var(--gray-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--gray-500);
+  }
+  .post-actions {
+    display: flex; gap: 16px; margin-top: 12px;
+    padding-top: 12px; border-top: 1px solid var(--gray-100);
+  }
+  .post-action {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--gray-500);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .post-action:hover { color: var(--dark); }
+
+  /* SIDEBAR WIDGETS */
+  .widget {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 12px; padding: 20px;
+    margin-bottom: 16px;
+  }
+  .widget h3 { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--dark); }
+  .widget-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 12.5px; color: var(--gray-700);
+  }
+  .widget-item:last-child { border-bottom: none; }
+  .wi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── PRODUCT PAGE ── */
+  .product-page { padding: 0; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-100);
+    padding: 12px 48px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filter-label { font-size: 12px; color: var(--gray-500); margin-right: 4px; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--gray-300);
+    background: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    color: var(--gray-700);
+  }
+  .filter-btn.active {
+    border-color: var(--dark);
+    background: var(--dark);
+    color: var(--white);
+  }
+  .filter-btn[data-filter="conocimiento"].active { background: #4A9E7F; border-color: #4A9E7F; }
+  .filter-btn[data-filter="consultoria"].active { background: var(--orange); border-color: var(--orange); }
+  .filter-btn[data-filter="gestion"].active { background: #8B5CF6; border-color: #8B5CF6; }
+  .filter-btn[data-filter="general"].active { background: var(--gray-700); border-color: var(--gray-700); }
+
+  /* PRODUCT HERO */
+  .product-hero {
+    padding: 40px 48px 32px;
+    display: grid; grid-template-columns: 1fr 360px;
+    gap: 40px; align-items: start;
+  }
+  .product-hero h1 { font-size: 36px; font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
+  .product-hero .ptag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .product-hero p { font-size: 14px; line-height: 1.7; color: var(--gray-700); max-width: 500px; }
+  .product-hero-img {
+    width: 100%; aspect-ratio: 16/9; border-radius: 14px;
+    background: var(--gray-100);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray-500); font-size: 13px;
+    overflow: hidden; position: relative;
+  }
+  .phi-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+  }
+  .phi-icon { font-size: 32px; }
+  .phi-label { font-size: 12px; color: var(--gray-500); }
+
+  /* PRODUCT SECTIONS */
+  .product-sections { padding: 0 48px 48px; }
+
+  .section-block {
+    margin-bottom: 32px;
+    transition: opacity 0.2s;
+  }
+  .section-block.filtered-out { opacity: 0.15; pointer-events: none; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .section-header h2 { font-size: 17px; font-weight: 700; }
+  .section-badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px;
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--gray-100); margin-bottom: 20px; }
+  .tab-btn {
+    padding: 10px 20px; font-size: 13px; font-weight: 600;
+    border: none; background: none; cursor: pointer;
+    color: var(--gray-500); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { color: var(--dark); border-bottom-color: var(--dark); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* DELIVERABLES */
+  .deliverable-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+  }
+  .deliverable-item:last-child { border-bottom: none; }
+  .di-status {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+  }
+  .di-status.done { background: #4A9E7F; color: white; }
+  .di-status.progress { background: var(--yellow); color: var(--dark); }
+  .di-status.pending { background: var(--gray-100); color: var(--gray-500); }
+  .di-name { flex: 1; font-weight: 500; }
+  .di-date { font-size: 11.5px; color: var(--gray-500); }
+  .di-owner {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: white;
+  }
+
+  /* GANTT */
+  .gantt { overflow-x: auto; }
+  .gantt-row {
+    display: grid; grid-template-columns: 180px 1fr;
+    gap: 12px; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+    font-size: 12px;
+  }
+  .gantt-label { font-weight: 500; color: var(--dark); }
+  .gantt-track { background: var(--gray-100); border-radius: 4px; height: 20px; position: relative; }
+  .gantt-bar {
+    position: absolute; top: 0; height: 100%; border-radius: 4px;
+    display: flex; align-items: center; padding: 0 8px;
+    font-size: 10px; font-weight: 600; color: white;
+  }
+
+  /* COMMENTS */
+  .comment-item {
+    display: flex; gap: 10px; margin-bottom: 16px;
+  }
+  .comment-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white;
+  }
+  .comment-bubble {
+    background: var(--gray-50); border: 1px solid var(--gray-100);
+    border-radius: 0 10px 10px 10px; padding: 10px 14px;
+    flex: 1;
+  }
+  .cb-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .cb-text { font-size: 13px; line-height: 1.5; }
+  .cb-time { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+  /* KNOWLEDGE */
+  .knowledge-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  .knowledge-card {
+    border: 1px solid var(--gray-100); border-radius: 10px;
+    overflow: hidden; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .knowledge-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .kc-img {
+    height: 80px; background: var(--gray-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .kc-body { padding: 12px; }
+  .kc-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .kc-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .kc-meta { font-size: 11px; color: var(--gray-500); margin-top: 6px; }
+
+  /* MURO SECTION */
+  .muro-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .muro-post {
+    background: var(--gray-50); border: 1px solid var(--gray-100);
+    border-radius: 10px; padding: 16px;
+    font-size: 13px;
+  }
+  .muro-post .mp-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .mp-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: white;
+  }
+  .mp-name { font-size: 12px; font-weight: 600; }
+  .mp-time { font-size: 11px; color: var(--gray-500); }
+
+  /* Colors per dimension */
+  .dim-estrategia { background: #E8611A; }
+  .dim-organizacion { background: #E8B01A; }
+  .dim-solutions { background: #4A9E7F; }
+  .dim-people { background: #C8D81A; }
+
+  .tag-conocimiento { background: rgba(74,158,127,0.15); color: #2D7A5E; }
+  .tag-consultoria { background: rgba(232,97,26,0.15); color: #B84A0A; }
+  .tag-gestion { background: rgba(139,92,246,0.15); color: #6D28D9; }
+  .tag-general { background: rgba(68,68,64,0.15); color: #444440; }
+
+  /* Transitions */
+  .main-fade { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div style="text-align:center;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+      <div style="width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:18px;font-weight:900;color:#1A1A18;font-family:'Playfair Display',serif;font-style:italic;">g</span>
+      </div>
+      <span style="font-size:20px;font-weight:700;color:#fff;">gudcompany</span>
+    </div>
+    <p style="color:#888;font-size:13px;">Client Platform</p>
+  </div>
+  <div class="auth-card">
+    <h1>Bienvenido</h1>
+    <p>Inicia sesión para acceder a tu espacio de trabajo</p>
+    <button class="google-btn" onclick="showCompanySelect()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continuar con Google
+    </button>
+    <p style="margin-top:16px;font-size:11px;color:#555;">Solo disponible para usuarios autorizados por gudcompany</p>
+  </div>
+</div>
+
+<!-- COMPANY SELECT -->
+<div id="company-screen">
+  <p style="color:#888;font-size:13px;margin-bottom:4px;">Hola, Rodrigo 👋</p>
+  <h2>Selecciona una empresa</h2>
+  <div class="company-grid">
+    <div class="company-card" onclick="enterCompany('TechStartup','#E8611A','TS')">
+      <div class="dot" style="background:#E8611A;">TS</div>
+      <h3>TechStartup SA</h3>
+      <p>Estrategia · Organización</p>
+    </div>
+    <div class="company-card" onclick="enterCompany('Inversiones Norte','#4A9E7F','IN')">
+      <div class="dot" style="background:#4A9E7F;">IN</div>
+      <h3>Inversiones Norte</h3>
+      <p>Solutions · People Platz</p>
+    </div>
+    <div class="company-card" onclick="enterCompany('Familia García','#8B5CF6','FG')">
+      <div class="dot" style="background:#8B5CF6;">FG</div>
+      <h3>Familia García</h3>
+      <p>Family Office Building</p>
+    </div>
+    <div class="company-card" onclick="enterCompany('Retail Group','#E8B01A','RG')">
+      <div class="dot" style="background:#E8B01A;">RG</div>
+      <h3>Retail Group Chile</h3>
+      <p>Estrategia · People Platz</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div style="width:28px;height:28px;background:#1A1A18;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:14px;font-weight:900;color:#fff;font-family:'Playfair Display',serif;font-style:italic;">g</span>
+      </div>
+      <span>gudcompany</span>
+    </div>
+    <div class="topbar-company">
+      <div class="company-badge" onclick="showCompanySelect2()">
+        <div class="cbdot" id="company-color-dot" style="background:#E8611A;"></div>
+        <span id="company-name-display">TechStartup SA</span>
+        <span style="color:#888;font-size:10px;">▼</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Buscar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="topbar-icon-btn" title="Notificaciones">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:#E8611A;border-radius:50%;border:1.5px solid white;"></div>
+      </button>
+      <div class="avatar" id="user-avatar">RG</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <!-- Estrategia -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" onclick="toggleSection('est')">
+        <div class="ssh-left">
+          <div class="ssh-icon dim-estrategia">E</div>
+          <span class="ssh-label">Estrategia</span>
+        </div>
+        <span class="ssh-chevron open" id="chevron-est">›</span>
+      </div>
+      <div class="sidebar-items open" id="items-est">
+        <div class="sidebar-item active" onclick="navigate('dim-estrategia','Overview')">📊 Overview</div>
+        <div class="sidebar-item" onclick="navigate('prod-proposito','Propósito')">· Propósito</div>
+        <div class="sidebar-item" onclick="navigate('prod-planificacion','Planificación Estratégica')">· Planificación Estratégica</div>
+        <div class="sidebar-item" onclick="navigate('prod-gestion-est','Gestión Estratégica')">· Gestión Estratégica</div>
+        <div class="sidebar-item" onclick="navigate('prod-filosofia','Filosofía Corporativa')">· Filosofía Corporativa</div>
+        <div class="sidebar-item" onclick="navigate('prod-propuesta','Propuesta de Valor')">· Propuesta de Valor</div>
+        <div class="sidebar-item" onclick="navigate('prod-identidad','Identidad y Marca')">· Identidad y Marca</div>
+        <div class="sidebar-item" onclick="navigate('prod-modelo','Modelo de Negocios')">· Modelo de Negocios</div>
+      </div>
+    </div>
+
+    <!-- Organización -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" onclick="toggleSection('org')">
+        <div class="ssh-left">
+          <div class="ssh-icon dim-organizacion">O</div>
+          <span class="ssh-label">Organización</span>
+        </div>
+        <span class="ssh-chevron" id="chevron-org">›</span>
+      </div>
+      <div class="sidebar-items" id="items-org">
+        <div class="sidebar-item" onclick="navigate('dim-organizacion','Overview')">📊 Overview</div>
+        <div class="sidebar-item" onclick="navigate('prod-estructura','Estructura Organizacional')">· Estructura Organizacional</div>
+        <div class="sidebar-item" onclick="navigate('prod-cultura','Cultura Organizacional')">· Cultura Organizacional</div>
+        <div class="sidebar-item" onclick="navigate('prod-liderazgo-org','Liderazgo')">· Liderazgo</div>
+        <div class="sidebar-item" onclick="navigate('prod-teambuilding','Team Building')">· Team Building</div>
+        <div class="sidebar-item" onclick="navigate('prod-coaching-org','Coaching')">· Coaching</div>
+      </div>
+    </div>
+
+    <!-- Solutions -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" onclick="toggleSection('sol')">
+        <div class="ssh-left">
+          <div class="ssh-icon dim-solutions">S</div>
+          <span class="ssh-label">Solutions</span>
+        </div>
+        <span class="ssh-chevron" id="chevron-sol">›</span>
+      </div>
+      <div class="sidebar-items" id="items-sol">
+        <div class="sidebar-item" onclick="navigate('dim-solutions','Overview')">📊 Overview</div>
+        <div class="sidebar-item" onclick="navigate('prod-company-building','Company Building')">· Company Building</div>
+        <div class="sidebar-item" onclick="navigate('prod-company-restart','Company Re-Start')">· Company Re-Start</div>
+        <div class="sidebar-item" onclick="navigate('prod-venture','Venture – Mgmt as a Service')">· Venture – MaaS</div>
+        <div class="sidebar-item" onclick="navigate('prod-family-office','Family Office Building')">· Family Office Building</div>
+        <div class="sidebar-item" onclick="navigate('prod-philanthropy','Philanthropy Building')">· Philanthropy Building</div>
+      </div>
+    </div>
+
+    <!-- People Platz -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" onclick="toggleSection('ppl')">
+        <div class="ssh-left">
+          <div class="ssh-icon dim-people" style="color:#333;">P</div>
+          <span class="ssh-label">People Platz</span>
+        </div>
+        <span class="ssh-chevron" id="chevron-ppl">›</span>
+      </div>
+      <div class="sidebar-items" id="items-ppl">
+        <div class="sidebar-item" onclick="navigate('dim-people','Overview')">📊 Overview</div>
+        <div class="sidebar-item" onclick="navigate('prod-hunting','Hunting')">· Hunting</div>
+        <div class="sidebar-item" onclick="navigate('prod-onboarding','Onboarding')">· Onboarding</div>
+        <div class="sidebar-item" onclick="navigate('prod-experiencia','Experiencia del Colaborador')">· Experiencia del Colaborador</div>
+        <div class="sidebar-item" onclick="navigate('prod-formacion','Formación y Desarrollo')">· Formación y Desarrollo</div>
+        <div class="sidebar-item" onclick="navigate('prod-coaching-ppl','Coaching')">· Coaching</div>
+        <div class="sidebar-item" onclick="navigate('prod-talleres','Talleres')">· Talleres</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="main-content">
+
+    <!-- DIMENSION: ESTRATEGIA -->
+    <div class="page active main-fade" id="page-dim-estrategia">
+      <div class="dim-hero">
+        <div class="dim-hero-inner dim-estrategia">
+          <div>
+            <h1><em>Estrategia</em></h1>
+            <p class="subtitle">Pensar y actuar estratégicamente es uno de los desafíos más complejos para los líderes de hoy.</p>
+            <p class="desc">Con experiencia de más de 100 clientes, acompañamos a tu organización en el equilibrio entre visión de largo plazo y acción ágil.</p>
+          </div>
+          <div class="dim-stats">
+            <div class="dim-stat"><div class="num">8</div><div class="lbl">Servicios activos</div></div>
+            <div class="dim-stat"><div class="num">3</div><div class="lbl">En progreso</div></div>
+            <div class="dim-stat"><div class="num">12</div><div class="lbl">Entregables</div></div>
+            <div class="dim-stat"><div class="num">2</div><div class="lbl">Próx. reuniones</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dim-feed-section">
+        <div>
+          <div class="feed-header">
+            <h2>Muro de la Dimensión</h2>
+            <button class="btn-sm">+ Publicar</button>
+          </div>
+          <div class="post-composer">
+            <textarea placeholder="Comparte una actualización sobre Estrategia..."></textarea>
+            <div class="post-composer-footer">
+              <div class="pc-icons">
+                <button class="pc-icon">📷</button>
+                <button class="pc-icon">📎</button>
+                <button class="pc-icon">🔗</button>
+              </div>
+              <button class="btn-sm">Publicar</button>
+            </div>
+          </div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#E8611A;">MG</div>
+              <div class="post-meta">
+                <div class="name">Marcela González · gudcompany</div>
+                <div class="time">hace 2 días</div>
+              </div>
+            </div>
+            <div class="post-tag tag-consultoria">Consultoría</div>
+            <div class="post-content">Terminamos el primer workshop de Planificación Estratégica 2025. El equipo directivo logró alinear los 3 ejes principales del negocio. Próximo paso: definición de OKRs por área.</div>
+            <div class="post-img">📸 Imagen del workshop</div>
+            <div class="post-actions">
+              <div class="post-action">👍 12</div>
+              <div class="post-action">💬 4 comentarios</div>
+              <div class="post-action">↗ Compartir</div>
+            </div>
+          </div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#8B5CF6;">JR</div>
+              <div class="post-meta">
+                <div class="name">Juan Rodríguez · TechStartup SA</div>
+                <div class="time">hace 4 días</div>
+              </div>
+            </div>
+            <div class="post-tag tag-gestion">Gestión</div>
+            <div class="post-content">Revisamos el mapa estratégico actualizado. Muy clara la propuesta de valor diferenciadora. Compartimos con el board la semana que viene.</div>
+            <div class="post-actions">
+              <div class="post-action">👍 7</div>
+              <div class="post-action">💬 2 comentarios</div>
+              <div class="post-action">↗ Compartir</div>
+            </div>
+          </div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#4A9E7F;">AG</div>
+              <div class="post-meta">
+                <div class="name">Ana Gutiérrez · gudcompany</div>
+                <div class="time">hace 1 semana</div>
+              </div>
+            </div>
+            <div class="post-tag tag-conocimiento">Conocimiento</div>
+            <div class="post-content">Artículo recomendado: "Las 5 trampas del pensamiento estratégico en empresas medianas." Muy relevante para el proceso que estamos viviendo.</div>
+            <div class="post-actions">
+              <div class="post-action">👍 15</div>
+              <div class="post-action">💬 6 comentarios</div>
+              <div class="post-action">↗ Compartir</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="widget">
+            <h3>🗓 Próximas fechas</h3>
+            <div class="widget-item"><div class="wi-dot" style="background:#E8611A;"></div><div><div style="font-weight:600;">Workshop OKRs</div><div style="font-size:11px;color:#888;">15 Mar · 10:00 AM</div></div></div>
+            <div class="widget-item"><div class="wi-dot" style="background:#E8B01A;"></div><div><div style="font-weight:600;">Revisión Mapa Estratégico</div><div style="font-size:11px;color:#888;">22 Mar · 3:00 PM</div></div></div>
+            <div class="widget-item"><div class="wi-dot" style="background:#4A9E7F;"></div><div><div style="font-weight:600;">Entrega Informe Q1</div><div style="font-size:11px;color:#888;">31 Mar</div></div></div>
+          </div>
+          <div class="widget">
+            <h3>📁 Último entregables</h3>
+            <div class="widget-item">📄 Mapa Estratégico v2.pdf</div>
+            <div class="widget-item">📊 Dashboard KPIs Q1.xlsx</div>
+            <div class="widget-item">📝 Acta Workshop Feb 2025</div>
+          </div>
+          <div class="widget">
+            <h3>👥 Equipo asignado</h3>
+            <div class="widget-item"><div class="post-avatar" style="background:#E8611A;width:28px;height:28px;font-size:11px;">MG</div> Marcela González</div>
+            <div class="widget-item"><div class="post-avatar" style="background:#4A9E7F;width:28px;height:28px;font-size:11px;">AG</div> Ana Gutiérrez</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIMENSION: ORGANIZACION -->
+    <div class="page main-fade" id="page-dim-organizacion">
+      <div class="dim-hero">
+        <div class="dim-hero-inner dim-organizacion">
+          <div>
+            <h1>Organización</h1>
+            <p class="subtitle">Es simple. Empresa = Negocio + Organización.</p>
+            <p class="desc">Para asegurar el éxito de una empresa es fundamental hacerse cargo de su diseño organizacional. Un gobierno corporativo moderno y estructura eficiente.</p>
+          </div>
+          <div class="dim-stats">
+            <div class="dim-stat"><div class="num">6</div><div class="lbl">Servicios activos</div></div>
+            <div class="dim-stat"><div class="num">2</div><div class="lbl">En progreso</div></div>
+            <div class="dim-stat"><div class="num">9</div><div class="lbl">Entregables</div></div>
+            <div class="dim-stat"><div class="num">1</div><div class="lbl">Próx. reuniones</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dim-feed-section">
+        <div>
+          <div class="feed-header"><h2>Muro de la Dimensión</h2><button class="btn-sm">+ Publicar</button></div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#E8B01A;color:#333;">PL</div>
+              <div class="post-meta"><div class="name">Pedro Lagos · gudcompany</div><div class="time">hace 3 días</div></div>
+            </div>
+            <div class="post-tag tag-consultoria">Consultoría</div>
+            <div class="post-content">Se presentó el nuevo organigrama propuesto al CEO. Buen recibimiento. Próximo paso: validar con los gerentes de área antes del 20 de marzo.</div>
+            <div class="post-actions"><div class="post-action">👍 9</div><div class="post-action">💬 3 comentarios</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="widget">
+            <h3>🗓 Próximas fechas</h3>
+            <div class="widget-item"><div class="wi-dot" style="background:#E8B01A;"></div><div><div style="font-weight:600;">Validación Organigrama</div><div style="font-size:11px;color:#888;">20 Mar · 2:00 PM</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIMENSION: SOLUTIONS -->
+    <div class="page main-fade" id="page-dim-solutions">
+      <div class="dim-hero">
+        <div class="dim-hero-inner dim-solutions">
+          <div>
+            <h1><em>Solutions</em></h1>
+            <p class="subtitle">Soluciones específicas para desafíos específicos que necesitan una mirada y acompañamiento integral.</p>
+            <p class="desc">Acompañamientos diseñados especialmente para desafíos que necesitan un apoyo que integre orgánicamente estrategia, organización, ejecución y alineamiento.</p>
+          </div>
+          <div class="dim-stats">
+            <div class="dim-stat"><div class="num">4</div><div class="lbl">Servicios activos</div></div>
+            <div class="dim-stat"><div class="num">1</div><div class="lbl">En progreso</div></div>
+            <div class="dim-stat"><div class="num">6</div><div class="lbl">Entregables</div></div>
+            <div class="dim-stat"><div class="num">3</div><div class="lbl">Próx. reuniones</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dim-feed-section">
+        <div>
+          <div class="feed-header"><h2>Muro de la Dimensión</h2><button class="btn-sm">+ Publicar</button></div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#4A9E7F;">LM</div>
+              <div class="post-meta"><div class="name">Laura Montoya · gudcompany</div><div class="time">hace 1 día</div></div>
+            </div>
+            <div class="post-tag tag-gestion">Gestión</div>
+            <div class="post-content">Iniciamos el proceso de Family Office Building. Primera sesión de diagnóstico completada. Excelente disposición del grupo familiar.</div>
+            <div class="post-actions"><div class="post-action">👍 11</div><div class="post-action">💬 2 comentarios</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="widget">
+            <h3>🗓 Próximas fechas</h3>
+            <div class="widget-item"><div class="wi-dot" style="background:#4A9E7F;"></div><div><div style="font-weight:600;">Sesión Diagnóstico #2</div><div style="font-size:11px;color:#888;">18 Mar · 10:00 AM</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIMENSION: PEOPLE PLATZ -->
+    <div class="page main-fade" id="page-dim-people">
+      <div class="dim-hero">
+        <div class="dim-hero-inner dim-people">
+          <div>
+            <h1>People <em>Platz</em></h1>
+            <p class="subtitle">Gestiona el talento sin necesidad de contratar un área de HR.</p>
+            <p class="desc">Tu partner en cultura y personas. Nos hacemos cargo de manera integral del área de Personas en todo el ciclo de vida del colaborador.</p>
+          </div>
+          <div class="dim-stats">
+            <div class="dim-stat"><div class="num">7</div><div class="lbl">Servicios activos</div></div>
+            <div class="dim-stat"><div class="num">4</div><div class="lbl">En progreso</div></div>
+            <div class="dim-stat"><div class="num">15</div><div class="lbl">Entregables</div></div>
+            <div class="dim-stat"><div class="num">2</div><div class="lbl">Próx. reuniones</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dim-feed-section">
+        <div>
+          <div class="feed-header"><h2>Muro de la Dimensión</h2><button class="btn-sm">+ Publicar</button></div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#C8D81A;color:#333;">CP</div>
+              <div class="post-meta"><div class="name">Carla Pérez · gudcompany</div><div class="time">hace 5 horas</div></div>
+            </div>
+            <div class="post-tag tag-consultoria">Consultoría</div>
+            <div class="post-content">Cerramos el proceso de Hunting para el cargo de CFO. 3 finalistas presentados. Reunión de selección final confirmada para el viernes.</div>
+            <div class="post-actions"><div class="post-action">👍 14</div><div class="post-action">💬 5 comentarios</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="widget">
+            <h3>🗓 Próximas fechas</h3>
+            <div class="widget-item"><div class="wi-dot" style="background:#C8D81A;"></div><div><div style="font-weight:600;">Selección CFO Final</div><div style="font-size:11px;color:#888;">14 Mar · 9:00 AM</div></div></div>
+            <div class="widget-item"><div class="wi-dot" style="background:#E8611A;"></div><div><div style="font-weight:600;">Onboarding Nuevos Ingresos</div><div style="font-size:11px;color:#888;">17 Mar</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCT PAGE TEMPLATE: PLANIFICACIÓN ESTRATÉGICA -->
+    <div class="page main-fade product-page" id="page-prod-planificacion">
+      <div class="filter-bar">
+        <span class="filter-label">Filtrar:</span>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'prod-planificacion')">Todos</button>
+        <button class="filter-btn" data-filter="conocimiento" onclick="setFilter(this,'prod-planificacion')">Conocimiento</button>
+        <button class="filter-btn" data-filter="consultoria" onclick="setFilter(this,'prod-planificacion')">Consultoría</button>
+        <button class="filter-btn" data-filter="gestion" onclick="setFilter(this,'prod-planificacion')">Gestión</button>
+        <button class="filter-btn" data-filter="general" onclick="setFilter(this,'prod-planificacion')">General</button>
+      </div>
+      <div class="product-hero">
+        <div>
+          <div class="product-hero .ptag" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:20px;background:rgba(232,97,26,0.12);color:#E8611A;margin-bottom:12px;">
+            ⚡ Estrategia
+          </div>
+          <h1 class="product-hero" style="font-size:36px;font-weight:700;line-height:1.1;margin-bottom:12px;">Planificación<br>Estratégica</h1>
+          <p style="font-size:14px;line-height:1.7;color:#666;max-width:500px;">Definimos juntos el norte de tu organización. Proceso estructurado para construir un plan estratégico claro, con objetivos medibles y una hoja de ruta accionable para los próximos 3 años.</p>
+          <div style="display:flex;gap:12px;margin-top:20px;">
+            <button class="btn-sm">📅 Agendar reunión</button>
+            <button class="btn-sm outline">📁 Ver todos los archivos</button>
+          </div>
+        </div>
+        <div class="product-hero-img">
+          <div class="phi-overlay">
+            <div class="phi-icon">🗺️</div>
+            <div class="phi-label">Imagen referencial del servicio</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-sections">
+        <!-- MURO -->
+        <div class="section-block" data-category="general">
+          <div class="section-header">
+            <h2>Muro del Producto</h2>
+            <span class="section-badge tag-general">General</span>
+          </div>
+          <div class="muro-grid">
+            <div class="muro-post">
+              <div class="mp-header">
+                <div class="mp-avatar" style="background:#E8611A;">MG</div>
+                <div><div class="mp-name">Marcela González</div><div class="mp-time">hace 1 día</div></div>
+              </div>
+              <p>Workshop completado con éxito. El equipo identificó los 5 pilares estratégicos clave para 2025-2027.</p>
+            </div>
+            <div class="muro-post">
+              <div class="mp-header">
+                <div class="mp-avatar" style="background:#8B5CF6;">JR</div>
+                <div><div class="mp-name">Juan Rodríguez (Cliente)</div><div class="mp-time">hace 2 días</div></div>
+              </div>
+              <p>Excelente dinámica del workshop. El framework propuesto fue muy claro para el equipo directivo.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADOS -->
+        <div class="section-block" data-category="consultoria">
+          <div class="section-header">
+            <h2>Resultados de la Consultoría</h2>
+            <span class="section-badge tag-consultoria">Consultoría</span>
+          </div>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this,'tab-entregables-plan')">📦 Entregables</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-comentarios-plan')">💬 Comentarios</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-gantt-plan')">📅 Gantt</button>
+          </div>
+          <div class="tab-panel active" id="tab-entregables-plan">
+            <div class="deliverable-item">
+              <div class="di-status done">✓</div>
+              <div class="di-name">Diagnóstico situación actual</div>
+              <div class="di-date">28 Feb</div>
+              <div class="di-owner" style="background:#E8611A;">MG</div>
+            </div>
+            <div class="deliverable-item">
+              <div class="di-status done">✓</div>
+              <div class="di-name">Mapa Estratégico v1</div>
+              <div class="di-date">07 Mar</div>
+              <div class="di-owner" style="background:#E8611A;">MG</div>
+            </div>
+            <div class="deliverable-item">
+              <div class="di-status progress">↻</div>
+              <div class="di-name">Definición de OKRs por área</div>
+              <div class="di-date">22 Mar</div>
+              <div class="di-owner" style="background:#4A9E7F;">AG</div>
+            </div>
+            <div class="deliverable-item">
+              <div class="di-status pending">○</div>
+              <div class="di-name">Plan de implementación Q2</div>
+              <div class="di-date">31 Mar</div>
+              <div class="di-owner" style="background:#8B5CF6;">JR</div>
+            </div>
+            <div class="deliverable-item">
+              <div class="di-status pending">○</div>
+              <div class="di-name">Dashboard KPIs estratégicos</div>
+              <div class="di-date">15 Abr</div>
+              <div class="di-owner" style="background:#E8611A;">MG</div>
+            </div>
+          </div>
+          <div class="tab-panel" id="tab-comentarios-plan">
+            <div class="comment-item">
+              <div class="comment-avatar" style="background:#E8611A;">MG</div>
+              <div class="comment-bubble">
+                <div class="cb-name">Marcela González</div>
+                <div class="cb-text">Completamos la primera versión del mapa estratégico. Pendiente revisión del equipo gerencial antes de cerrar.</div>
+                <div class="cb-time">hace 2 días</div>
+              </div>
+            </div>
+            <div class="comment-item">
+              <div class="comment-avatar" style="background:#8B5CF6;">JR</div>
+              <div class="comment-bubble">
+                <div class="cb-name">Juan Rodríguez</div>
+                <div class="cb-text">Revisé el mapa. Muy bien estructurado. Solo un comentario menor en el eje de innovación, lo vemos en la próxima sesión.</div>
+                <div class="cb-time">hace 1 día</div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-panel" id="tab-gantt-plan">
+            <div class="gantt">
+              <div class="gantt-row">
+                <div class="gantt-label">Diagnóstico</div>
+                <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:20%;background:#4A9E7F;">Feb</div></div>
+              </div>
+              <div class="gantt-row">
+                <div class="gantt-label">Mapa Estratégico</div>
+                <div class="gantt-track"><div class="gantt-bar" style="left:20%;width:25%;background:#E8611A;">Mar</div></div>
+              </div>
+              <div class="gantt-row">
+                <div class="gantt-label">OKRs</div>
+                <div class="gantt-track"><div class="gantt-bar" style="left:35%;width:25%;background:#E8B01A;color:#333;">Mar–Abr</div></div>
+              </div>
+              <div class="gantt-row">
+                <div class="gantt-label">Plan Q2</div>
+                <div class="gantt-track"><div class="gantt-bar" style="left:55%;width:20%;background:#8B5CF6;">Abr</div></div>
+              </div>
+              <div class="gantt-row">
+                <div class="gantt-label">Dashboard KPIs</div>
+                <div class="gantt-track"><div class="gantt-bar" style="left:70%;width:20%;background:#4A9E7F;">Abr–May</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MUNDO DEL CONOCIMIENTO -->
+        <div class="section-block" data-category="conocimiento">
+          <div class="section-header">
+            <h2>🌐 Mundo del Conocimiento</h2>
+            <span class="section-badge tag-conocimiento">Conocimiento</span>
+          </div>
+          <div class="knowledge-grid">
+            <div class="knowledge-card">
+              <div class="kc-img">📰</div>
+              <div class="kc-body">
+                <div class="kc-tag" style="color:#2D7A5E;">Artículo</div>
+                <div class="kc-title">Las 5 trampas del pensamiento estratégico en empresas medianas</div>
+                <div class="kc-meta">HBR · hace 3 días</div>
+              </div>
+            </div>
+            <div class="knowledge-card">
+              <div class="kc-img">🎥</div>
+              <div class="kc-body">
+                <div class="kc-tag" style="color:#B84A0A;">Video</div>
+                <div class="kc-title">Cómo construir un OKR que realmente funcione</div>
+                <div class="kc-meta">gudcompany Lab · hace 1 semana</div>
+              </div>
+            </div>
+            <div class="knowledge-card">
+              <div class="kc-img">📚</div>
+              <div class="kc-body">
+                <div class="kc-tag" style="color:#6D28D9;">Herramienta</div>
+                <div class="kc-title">Template: Mapa Estratégico Balanceado 2025</div>
+                <div class="kc-meta">gudcompany · Recurso exclusivo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCT PAGE: PROPOSITO (simplified) -->
+    <div class="page main-fade product-page" id="page-prod-proposito">
+      <div class="filter-bar">
+        <span class="filter-label">Filtrar:</span>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'prod-proposito')">Todos</button>
+        <button class="filter-btn" data-filter="conocimiento" onclick="setFilter(this,'prod-proposito')">Conocimiento</button>
+        <button class="filter-btn" data-filter="consultoria" onclick="setFilter(this,'prod-proposito')">Consultoría</button>
+        <button class="filter-btn" data-filter="gestion" onclick="setFilter(this,'prod-proposito')">Gestión</button>
+        <button class="filter-btn" data-filter="general" onclick="setFilter(this,'prod-proposito')">General</button>
+      </div>
+      <div class="product-hero">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:20px;background:rgba(232,97,26,0.12);color:#E8611A;margin-bottom:12px;">⚡ Estrategia</div>
+          <h1 style="font-size:36px;font-weight:700;line-height:1.1;margin-bottom:12px;">Propósito</h1>
+          <p style="font-size:14px;line-height:1.7;color:#666;max-width:500px;">Descubrimos y articulamos el propósito genuino de tu organización. El propósito es el motor que alinea decisiones, cultura y estrategia en un norte compartido.</p>
+          <div style="display:flex;gap:12px;margin-top:20px;"><button class="btn-sm">📅 Agendar reunión</button><button class="btn-sm outline">📁 Ver archivos</button></div>
+        </div>
+        <div class="product-hero-img"><div class="phi-overlay"><div class="phi-icon">🌟</div><div class="phi-label">Imagen referencial</div></div></div>
+      </div>
+      <div class="product-sections">
+        <div class="section-block" data-category="consultoria">
+          <div class="section-header"><h2>Resultados de la Consultoría</h2><span class="section-badge tag-consultoria">Consultoría</span></div>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this,'tab-ent-prop')">📦 Entregables</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-com-prop')">💬 Comentarios</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-gantt-prop')">📅 Gantt</button>
+          </div>
+          <div class="tab-panel active" id="tab-ent-prop">
+            <div class="deliverable-item"><div class="di-status done">✓</div><div class="di-name">Talleres de propósito (3 sesiones)</div><div class="di-date">15 Feb</div><div class="di-owner" style="background:#E8611A;">MG</div></div>
+            <div class="deliverable-item"><div class="di-status progress">↻</div><div class="di-name">Documento de Propósito v1</div><div class="di-date">20 Mar</div><div class="di-owner" style="background:#4A9E7F;">AG</div></div>
+            <div class="deliverable-item"><div class="di-status pending">○</div><div class="di-name">Manual de activación interna</div><div class="di-date">10 Abr</div><div class="di-owner" style="background:#E8611A;">MG</div></div>
+          </div>
+          <div class="tab-panel" id="tab-com-prop"><div class="comment-item"><div class="comment-avatar" style="background:#4A9E7F;">AG</div><div class="comment-bubble"><div class="cb-name">Ana Gutiérrez</div><div class="cb-text">Las tres sesiones de talleres generaron excelentes insights. El equipo está muy motivado con el resultado.</div><div class="cb-time">hace 3 días</div></div></div></div>
+          <div class="tab-panel" id="tab-gantt-prop">
+            <div class="gantt"><div class="gantt-row"><div class="gantt-label">Talleres</div><div class="gantt-track"><div class="gantt-bar" style="left:0%;width:30%;background:#4A9E7F;">Feb</div></div></div><div class="gantt-row"><div class="gantt-label">Doc. Propósito</div><div class="gantt-track"><div class="gantt-bar" style="left:30%;width:35%;background:#E8611A;">Mar</div></div></div><div class="gantt-row"><div class="gantt-label">Manual activación</div><div class="gantt-track"><div class="gantt-bar" style="left:60%;width:30%;background:#8B5CF6;">Abr</div></div></div></div>
+          </div>
+        </div>
+        <div class="section-block" data-category="conocimiento">
+          <div class="section-header"><h2>🌐 Mundo del Conocimiento</h2><span class="section-badge tag-conocimiento">Conocimiento</span></div>
+          <div class="knowledge-grid">
+            <div class="knowledge-card"><div class="kc-img">📰</div><div class="kc-body"><div class="kc-tag" style="color:#2D7A5E;">Artículo</div><div class="kc-title">El propósito como ventaja competitiva sostenible</div><div class="kc-meta">McKinsey · hace 1 semana</div></div></div>
+            <div class="knowledge-card"><div class="kc-img">🎥</div><div class="kc-body"><div class="kc-tag" style="color:#B84A0A;">Video</div><div class="kc-title">Simon Sinek: Start with Why — aplicado a empresas medianas</div><div class="kc-meta">gudcompany Lab · Recurso</div></div></div>
+            <div class="knowledge-card"><div class="kc-img">📚</div><div class="kc-body"><div class="kc-tag" style="color:#6D28D9;">Template</div><div class="kc-title">Canvas de Propósito Organizacional</div><div class="kc-meta">gudcompany · Exclusivo</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERIC PRODUCT PAGE for remaining items -->
+    <div class="page main-fade product-page" id="page-prod-hunting">
+      <div class="filter-bar">
+        <span class="filter-label">Filtrar:</span>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'prod-hunting')">Todos</button>
+        <button class="filter-btn" data-filter="conocimiento" onclick="setFilter(this,'prod-hunting')">Conocimiento</button>
+        <button class="filter-btn" data-filter="consultoria" onclick="setFilter(this,'prod-hunting')">Consultoría</button>
+        <button class="filter-btn" data-filter="gestion" onclick="setFilter(this,'prod-hunting')">Gestión</button>
+        <button class="filter-btn" data-filter="general" onclick="setFilter(this,'prod-hunting')">General</button>
+      </div>
+      <div class="product-hero">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:20px;background:rgba(200,216,26,0.2);color:#6B7300;margin-bottom:12px;">👥 People Platz</div>
+          <h1 style="font-size:36px;font-weight:700;line-height:1.1;margin-bottom:12px;">Hunting</h1>
+          <p style="font-size:14px;line-height:1.7;color:#666;max-width:500px;">Encontramos al candidato ideal para posiciones clave de tu organización. Proceso riguroso de búsqueda, evaluación y presentación de talentos alineados con tu cultura y estrategia.</p>
+          <div style="display:flex;gap:12px;margin-top:20px;"><button class="btn-sm">📅 Agendar reunión</button><button class="btn-sm outline">📁 Ver archivos</button></div>
+        </div>
+        <div class="product-hero-img"><div class="phi-overlay"><div class="phi-icon">🎯</div><div class="phi-label">Imagen referencial</div></div></div>
+      </div>
+      <div class="product-sections">
+        <div class="section-block" data-category="consultoria">
+          <div class="section-header"><h2>Resultados de la Consultoría</h2><span class="section-badge tag-consultoria">Consultoría</span></div>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this,'tab-ent-hunt')">📦 Entregables</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-com-hunt')">💬 Comentarios</button>
+            <button class="tab-btn" onclick="switchTab(this,'tab-gantt-hunt')">📅 Gantt</button>
+          </div>
+          <div class="tab-panel active" id="tab-ent-hunt">
+            <div class="deliverable-item"><div class="di-status done">✓</div><div class="di-name">Perfil del cargo (Job Description)</div><div class="di-date">01 Mar</div><div class="di-owner" style="background:#C8D81A;color:#333;">CP</div></div>
+            <div class="deliverable-item"><div class="di-status done">✓</div><div class="di-name">Longlist candidatos (15 perfiles)</div><div class="di-date">07 Mar</div><div class="di-owner" style="background:#C8D81A;color:#333;">CP</div></div>
+            <div class="deliverable-item"><div class="di-status progress">↻</div><div class="di-name">Shortlist finalistas (3 candidatos)</div><div class="di-date">12 Mar</div><div class="di-owner" style="background:#C8D81A;color:#333;">CP</div></div>
+            <div class="deliverable-item"><div class="di-status pending">○</div><div class="di-name">Entrevistas con cliente + selección final</div><div class="di-date">14 Mar</div><div class="di-owner" style="background:#8B5CF6;">JR</div></div>
+          </div>
+          <div class="tab-panel" id="tab-com-hunt"><div class="comment-item"><div class="comment-avatar" style="background:#C8D81A;color:#333;">CP</div><div class="comment-bubble"><div class="cb-name">Carla Pérez</div><div class="cb-text">Los 3 finalistas tienen un perfil excelente. Recomendamos especialmente al candidato 2 por su experiencia en scale-ups tech.</div><div class="cb-time">hace 5 horas</div></div></div></div>
+          <div class="tab-panel" id="tab-gantt-hunt">
+            <div class="gantt"><div class="gantt-row"><div class="gantt-label">Perfil del cargo</div><div class="gantt-track"><div class="gantt-bar" style="left:0%;width:15%;background:#4A9E7F;">Mar 1</div></div></div><div class="gantt-row"><div class="gantt-label">Longlist</div><div class="gantt-track"><div class="gantt-bar" style="left:15%;width:25%;background:#E8611A;">Mar 7</div></div></div><div class="gantt-row"><div class="gantt-label">Shortlist</div><div class="gantt-track"><div class="gantt-bar" style="left:40%;width:25%;background:#E8B01A;color:#333;">Mar 12</div></div></div><div class="gantt-row"><div class="gantt-label">Selección final</div><div class="gantt-track"><div class="gantt-bar" style="left:65%;width:20%;background:#8B5CF6;">Mar 14</div></div></div></div>
+          </div>
+        </div>
+        <div class="section-block" data-category="conocimiento">
+          <div class="section-header"><h2>🌐 Mundo del Conocimiento</h2><span class="section-badge tag-conocimiento">Conocimiento</span></div>
+          <div class="knowledge-grid">
+            <div class="knowledge-card"><div class="kc-img">📰</div><div class="kc-body"><div class="kc-tag" style="color:#2D7A5E;">Artículo</div><div class="kc-title">Cómo evaluar fit cultural en procesos de selección ejecutivos</div><div class="kc-meta">SHRM · hace 4 días</div></div></div>
+            <div class="knowledge-card"><div class="kc-img">📚</div><div class="kc-body"><div class="kc-tag" style="color:#6D28D9;">Template</div><div class="kc-title">Guía de entrevistas por competencias para CFO</div><div class="kc-meta">gudcompany · Exclusivo</div></div></div>
+            <div class="knowledge-card"><div class="kc-img">🎥</div><div class="kc-body"><div class="kc-tag" style="color:#B84A0A;">Video</div><div class="kc-title">Red flags en entrevistas ejecutivas</div><div class="kc-meta">gudcompany Lab</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<script>
+// ── STATE ──
+let currentCompany = { name: 'TechStartup SA', color: '#E8611A', initials: 'TS' };
+let currentPage = 'dim-estrategia';
+
+// ── AUTH ──
+function showCompanySelect() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('company-screen').style.display = 'flex';
+}
+function showCompanySelect2() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('company-screen').style.display = 'flex';
+}
+function enterCompany(name, color, initials) {
+  currentCompany = { name, color, initials };
+  document.getElementById('company-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('company-name-display').textContent = name;
+  document.getElementById('company-color-dot').style.background = color;
+  document.getElementById('user-avatar').textContent = 'RG';
+}
+
+// ── NAVIGATION ──
+function navigate(pageId, label) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('page-' + pageId);
+  if (target) {
+    target.classList.add('active');
+    // trigger animation
+    target.classList.remove('main-fade');
+    void target.offsetWidth;
+    target.classList.add('main-fade');
+    // scroll to top
+    document.getElementById('main-content').scrollTop = 0;
+  }
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  currentPage = pageId;
+}
+
+// ── SIDEBAR TOGGLE ──
+function toggleSection(id) {
+  const items = document.getElementById('items-' + id);
+  const chevron = document.getElementById('chevron-' + id);
+  items.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+// ── TABS ──
+function switchTab(btn, panelId) {
+  const tabGroup = btn.closest('.tabs');
+  tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const panelContainer = tabGroup.nextElementSibling;
+  // Find all tab-panels in this product's section
+  const section = btn.closest('.section-block');
+  section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ── FILTERS ──
+function setFilter(btn, pageId) {
+  const filterBar = btn.closest('.filter-bar');
+  filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filter = btn.dataset.filter;
+  const page = document.getElementById('page-' + pageId);
+  page.querySelectorAll('.section-block').forEach(block => {
+    const cat = block.dataset.category;
+    if (filter === 'all' || cat === filter) {
+      block.classList.remove('filtered-out');
+    } else {
+      block.classList.add('filtered-out');
+    }
+  });
+}
+
+// Init - show auth
+document.getElementById('auth-screen').style.display = 'flex';
+</script>
+</body>
+</html>
